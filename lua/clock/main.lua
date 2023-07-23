@@ -137,7 +137,7 @@ function M.start()
     group = augroup,
     callback = function()
       clock_winid = update_window(clock_bufid, clock_winid)
-    end
+    end,
   })
 
   clock_running = true
