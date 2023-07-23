@@ -27,7 +27,7 @@ local function build_lines(time)
     local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
 
     local lines = {}
-    local font, sep, pad = config.font, config.separator, config.ui.padding
+    local font, sep, pad = config.font, config.separator, config.float.padding
     local row = get_font_size("0")[1]
     local len = time:len()
 
@@ -99,21 +99,21 @@ end
 ---@param bufid integer clock buffer id
 ---@return integer clock window id
 local function init_window(bufid)
-  local ui = config.ui
+  local float = config.float
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
   local width, height = api.nvim_strwidth(lines[1]), #lines
   local rows, columns =
     api.nvim_get_option_value("lines", {}), api.nvim_get_option_value("columns", {})
   local winid = api.nvim_open_win(bufid, false, {
     relative = "editor",
-    anchor = ui.position == "top" and "NE" or "SE",
-    row = ui.position == "top" and ui.row_offset or rows - ui.row_offset,
-    col = columns - ui.col_offset,
+    anchor = float.position == "top" and "NE" or "SE",
+    row = float.position == "top" and float.row_offset or rows - float.row_offset,
+    col = columns - float.col_offset,
     width = width,
     height = height,
-    border = ui.border,
+    border = float.border,
     style = "minimal",
-    zindex = ui.zindex,
+    zindex = float.zindex,
     focusable = false,
   })
   return winid
