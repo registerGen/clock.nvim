@@ -3,6 +3,8 @@ local M = {}
 local api = vim.api
 local fn = vim.fn
 local uv = vim.loop
+local augroup = api.nvim_create_augroup("clock.nvim", { clear = true })
+
 ---@type Config
 local config = require("clock.config").get()
 
@@ -89,6 +91,12 @@ local function delete_window(winid)
   api.nvim_win_close(winid, true)
 end
 
+---@return integer updated clock window id
+local function update_window(bufid, winid)
+  delete_window(winid)
+  return init_window(bufid)
+end
+
 local clock_running = false
 local clock_timer, clock_bufid, clock_winid
 
@@ -113,6 +121,13 @@ function M.start()
       update_buffer(clock_bufid, lines)
     end)
   end)
+
+  api.nvim_create_autocmd("WinResized", {
+    group = augroup,
+    callback = function()
+      clock_winid = update_window(clock_bufid, clock_winid)
+    end
+  })
 
   clock_running = true
 end
