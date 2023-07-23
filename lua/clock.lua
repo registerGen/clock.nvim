@@ -3,7 +3,7 @@ local M = {}
 local api = vim.api
 local config = require("clock.config")
 
----@param user_config? Config
+---@param user_config? ClockConfig
 M.setup = function(user_config)
   config.set(user_config)
 

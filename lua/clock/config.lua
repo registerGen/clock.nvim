@@ -3,18 +3,23 @@ local M = {}
 local api = vim.api
 local fn = vim.fn
 
----@class Config
----@field auto_start boolean
+---@class ClockUIConfig
 ---@field border string
+---@field col_offset integer
+---@field padding integer[] left, right, top, bottom paddings, respectively
+---@field row_offset integer
+
+---@class ClockConfig
+---@field auto_start boolean
 ---@field font table<string, string[]>
 ---@field separator string
 ---@field time_format string
 ---@field update_time integer
+---@field ui ClockUIConfig
 
----@type Config
+---@type ClockConfig
 local default = {
   auto_start = true,
-  border = "rounded",
   font = {
     ["0"] = {
       "██████",
@@ -97,9 +102,15 @@ local default = {
   separator = "  ",
   time_format = "%X",
   update_time = 500,
+  ui = {
+    border = "single",
+    col_offset = 1,
+    padding = { 1, 1, 0, 0 },
+    row_offset = 1,
+  },
 }
 
----@type Config
+---@type ClockConfig
 local config = default
 
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
@@ -165,7 +176,7 @@ local function validate_font()
   end
 end
 
----@param user_config? Config
+---@param user_config? ClockConfig
 ---@return nil
 M.set = function(user_config)
   user_config = user_config or {}
@@ -175,7 +186,7 @@ M.set = function(user_config)
   validate_font()
 end
 
----@return Config
+---@return ClockConfig
 M.get = function()
   return config
 end

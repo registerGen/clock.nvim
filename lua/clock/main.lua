@@ -5,7 +5,7 @@ local fn = vim.fn
 local uv = vim.loop
 local augroup = api.nvim_create_augroup("clock.nvim", { clear = true })
 
-local config = require("clock.config").get() ---@type Config
+local config = require("clock.config").get() ---@type ClockConfig
 
 ---@return string | osdate
 local function get_time()
@@ -13,10 +13,11 @@ local function get_time()
   return os.date(format)
 end
 
----@return integer
-local function get_font_row()
+---@param c string
+---@return integer[] (row, col) of font[c]
+local function get_font_size(c)
   local font = config.font
-  return #font["0"]
+  return { #font[c], fn.strdisplaywidth(font[c][1]) }
 end
 
 -- Build the lines of the clock buffer.
@@ -24,23 +25,45 @@ end
 ---@return string[]
 local function build_lines(time)
   if type(time) == "string" then
+    local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
+
     local lines = {}
-    local font, sep = config.font, config.separator
-    local row = get_font_row()
+    local font, sep, pad = config.font, config.separator, config.ui.padding
+    local row = get_font_size("0")[1]
     local len = time:len()
 
-    for _ = 1, row, 1 do
-      lines[#lines + 1] = ""
+    for _ = 1, pad[TOP] + row + pad[BOTTOM], 1 do
+      lines[#lines + 1] = (" "):rep(pad[LEFT])
     end
 
     for i = 1, len, 1 do
       local c = time:sub(i, i)
-      for j = 1, row, 1 do
-        lines[j] = lines[j] .. font[c][j]
+      local col = get_font_size(c)[2]
+
+      for j = 1, pad[TOP], 1 do
+        lines[j] = lines[j] .. (" "):rep(col)
         if i ~= len then
           lines[j] = lines[j] .. sep
         end
       end
+
+      for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
+        lines[j] = lines[j] .. (" "):rep(col)
+        if i ~= len then
+          lines[j] = lines[j] .. sep
+        end
+      end
+
+      for j = pad[TOP] + 1, pad[TOP] + row, 1 do
+        lines[j] = lines[j] .. font[c][j - pad[TOP]]
+        if i ~= len then
+          lines[j] = lines[j] .. sep
+        end
+      end
+    end
+
+    for i = 1, pad[TOP] + row + pad[BOTTOM], 1 do
+      lines[i] = lines[i] .. (" "):rep(pad[RIGHT])
     end
 
     return lines
@@ -80,15 +103,14 @@ local function init_window(bufid)
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
   local width, height = fn.strdisplaywidth(lines[1]), #lines
   local columns = api.nvim_get_option_value("columns", {})
-  local border = config.border
   local winid = api.nvim_open_win(bufid, false, {
     relative = "editor",
     anchor = "NE",
-    row = 0,
-    col = columns,
+    row = config.ui.row_offset,
+    col = columns - config.ui.col_offset,
     width = width,
     height = height,
-    border = border,
+    border = config.ui.border,
     style = "minimal",
   })
   return winid
