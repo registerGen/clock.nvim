@@ -1,7 +1,6 @@
 local M = {}
 
 local api = vim.api
-local fn = vim.fn
 
 ---@class ClockUIConfig
 ---@field border string
@@ -163,7 +162,7 @@ local function validate_font()
     local cols = {}
 
     for _, line in pairs(font[c]) do
-      cols[#cols + 1] = fn.strdisplaywidth(line)
+      cols[#cols + 1] = api.nvim_strwidth(line)
     end
 
     if not all_same(cols) then

@@ -1,7 +1,6 @@
 local M = {}
 
 local api = vim.api
-local fn = vim.fn
 local uv = vim.loop
 local augroup = api.nvim_create_augroup("clock.nvim", { clear = true })
 
@@ -17,7 +16,7 @@ end
 ---@return integer[] (row, col) of font[c]
 local function get_font_size(c)
   local font = config.font
-  return { #font[c], fn.strdisplaywidth(font[c][1]) }
+  return { #font[c], api.nvim_strwidth(font[c][1]) }
 end
 
 -- Build the lines of the clock buffer.
@@ -102,7 +101,7 @@ end
 local function init_window(bufid)
   local ui = config.ui
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
-  local width, height = fn.strdisplaywidth(lines[1]), #lines
+  local width, height = api.nvim_strwidth(lines[1]), #lines
   local rows, columns =
     api.nvim_get_option_value("lines", {}), api.nvim_get_option_value("columns", {})
   local winid = api.nvim_open_win(bufid, false, {
