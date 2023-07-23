@@ -1,0 +1,22 @@
+name: lint
+on:
+  push:
+    paths:
+      - '**.lua'
+  pull_request:
+    paths:
+      - '**.lua'
+  workflow_dispatch:
+
+jobs:
+  stylua:
+    name: StyLua
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint with StyLua
+        uses: JohnnyMorganz/stylua-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: latest
+          args: --check lua/
