@@ -114,6 +114,7 @@ local function init_window(bufid)
     border = ui.border,
     style = "minimal",
     zindex = ui.zindex,
+    focusable = false,
   })
   return winid
 end
