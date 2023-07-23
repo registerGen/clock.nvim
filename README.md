@@ -10,11 +10,36 @@ Install it as a normal neovim plugin and call the `setup()` function.
 
 ```lua
 require("clock").setup()
+-- or
+require("clock").setup({
+  -- your configuration here
+})
 ```
 
 ## Configuration
 
-See `lua/clock/config.lua`.
+The default configuration and the documentation are shown below.
+
+```lua
+local default = {
+  auto_start = true,
+  font = {
+    -- the "font" of the clock text
+    -- see lua/clock/config.lua for details
+  },
+  separator = "  ", -- separator of two characters
+  time_format = "%X",
+  update_time = 500, -- update the clock text once per update_time
+  ui = {
+    border = "single",
+    col_offset = 1,
+    padding = { 1, 1, 0, 0 }, -- left, right, top, bottom padding, respectively
+    position = "top", -- or "bottom"
+    row_offset = 1,
+    zindex = 40,
+  },
+}
+```
 
 ## Commands
 
