@@ -102,10 +102,35 @@ local default = {
 ---@type Config
 local config = default
 
+local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
+
+---@return nil
+local function validate_time_format()
+  local time = os.date(config.time_format)
+  if type(time) ~= "string" then
+    return
+  end
+
+  for i = 1, time:len(), 1 do
+    local c = time:sub(i, i)
+    local found = false
+
+    for _, v in pairs(char_set) do
+      if c == v then
+        found = true
+        break
+      end
+    end
+
+    if not found then
+      api.nvim_err_writeln("formatted time should only contain digits or colons")
+    end
+  end
+end
+
 ---@return nil
 local function validate_font()
   local font = config.font
-  local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
   local rows = {}
 
   ---@param l integer[]
@@ -136,7 +161,7 @@ local function validate_font()
   end
 
   if not all_same(rows) then
-    api.nvim_err_writeln("rows of each character of config.font should be the same")
+    api.nvim_err_writeln("row numbers of each character of config.font should be the same")
   end
 end
 
@@ -144,6 +169,8 @@ end
 M.set = function(user_config)
   user_config = user_config or {}
   config = vim.tbl_deep_extend("force", default, user_config)
+
+  validate_time_format()
   validate_font()
 end
 
