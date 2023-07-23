@@ -5,8 +5,7 @@ local fn = vim.fn
 local uv = vim.loop
 local augroup = api.nvim_create_augroup("clock.nvim", { clear = true })
 
----@type Config
-local config = require("clock.config").get()
+local config = require("clock.config").get() ---@type Config
 
 ---@return string | osdate
 local function get_time()
@@ -21,7 +20,7 @@ local function get_font_row()
 end
 
 -- Build the lines of the clock buffer.
----@param time string | osdate
+---@param time string | osdate time represented in string
 ---@return string[]
 local function build_lines(time)
   if type(time) == "string" then
@@ -50,6 +49,8 @@ local function build_lines(time)
   return {}
 end
 
+-- Initialize clock buffer.
+---@param lines string[] clock buffer content
 ---@return integer clock buffer id
 local function init_buffer(lines)
   local bufid = api.nvim_create_buf(false, true)
@@ -57,16 +58,23 @@ local function init_buffer(lines)
   return bufid
 end
 
+-- Update clock buffer.
+---@param bufid integer clock buffer id
+---@param lines string[] new clock buffer content
 ---@return nil
 local function update_buffer(bufid, lines)
   api.nvim_buf_set_lines(bufid, 0, -1, false, lines)
 end
 
+-- Delete clock buffer.
+---@param bufid integer clock buffer id
 ---@return nil
 local function delete_buffer(bufid)
   api.nvim_buf_delete(bufid, { force = true })
 end
 
+-- Initialize clock window.
+---@param bufid integer clock buffer id
 ---@return integer clock window id
 local function init_window(bufid)
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
@@ -86,19 +94,26 @@ local function init_window(bufid)
   return winid
 end
 
+-- Delete clock window.
+---@param winid integer clock window id
 ---@return nil
 local function delete_window(winid)
   api.nvim_win_close(winid, true)
 end
 
----@return integer updated clock window id
+-- Re-open clock window.
+---@param bufid integer clock buffer id
+---@param winid integer old clock window id
+---@return integer new clock window id
 local function update_window(bufid, winid)
   delete_window(winid)
   return init_window(bufid)
 end
 
-local clock_running = false
-local clock_timer, clock_bufid, clock_winid
+local clock_running = false ---@type boolean
+local clock_timer ---@type uv_timer_t
+local clock_bufid ---@type integer
+local clock_winid ---@type integer
 
 ---@return nil
 function M.start()
@@ -110,11 +125,7 @@ function M.start()
   clock_bufid = init_buffer(lines)
   clock_winid = init_window(clock_bufid)
 
-  clock_timer = uv.new_timer()
-  if not clock_timer then
-    return
-  end
-
+  clock_timer = assert(uv.new_timer())
   clock_timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
       lines = build_lines(get_time())
