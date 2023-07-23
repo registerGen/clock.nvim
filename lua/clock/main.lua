@@ -47,15 +47,15 @@ local function build_lines(time)
         end
       end
 
-      for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
-        lines[j] = lines[j] .. (" "):rep(col)
+      for j = pad[TOP] + 1, pad[TOP] + row, 1 do
+        lines[j] = lines[j] .. font[c][j - pad[TOP]]
         if i ~= len then
           lines[j] = lines[j] .. sep
         end
       end
 
-      for j = pad[TOP] + 1, pad[TOP] + row, 1 do
-        lines[j] = lines[j] .. font[c][j - pad[TOP]]
+      for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
+        lines[j] = lines[j] .. (" "):rep(col)
         if i ~= len then
           lines[j] = lines[j] .. sep
         end
@@ -100,20 +100,21 @@ end
 ---@param bufid integer clock buffer id
 ---@return integer clock window id
 local function init_window(bufid)
+  local ui = config.ui
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
   local width, height = fn.strdisplaywidth(lines[1]), #lines
   local rows, columns =
     api.nvim_get_option_value("lines", {}), api.nvim_get_option_value("columns", {})
   local winid = api.nvim_open_win(bufid, false, {
     relative = "editor",
-    anchor = config.ui.position == "top" and "NE" or "SE",
-    row = config.ui.position == "top" and config.ui.row_offset or rows - config.ui.row_offset,
-    col = columns - config.ui.col_offset,
+    anchor = ui.position == "top" and "NE" or "SE",
+    row = ui.position == "top" and ui.row_offset or rows - ui.row_offset,
+    col = columns - ui.col_offset,
     width = width,
     height = height,
-    border = config.ui.border,
+    border = ui.border,
     style = "minimal",
-    zindex = config.ui.zindex,
+    zindex = ui.zindex,
   })
   return winid
 end
