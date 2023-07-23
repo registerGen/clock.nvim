@@ -102,16 +102,18 @@ end
 local function init_window(bufid)
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
   local width, height = fn.strdisplaywidth(lines[1]), #lines
-  local columns = api.nvim_get_option_value("columns", {})
+  local rows, columns =
+    api.nvim_get_option_value("lines", {}), api.nvim_get_option_value("columns", {})
   local winid = api.nvim_open_win(bufid, false, {
     relative = "editor",
-    anchor = "NE",
-    row = config.ui.row_offset,
+    anchor = config.ui.position == "top" and "NE" or "SE",
+    row = config.ui.position == "top" and config.ui.row_offset or rows - config.ui.row_offset,
     col = columns - config.ui.col_offset,
     width = width,
     height = height,
     border = config.ui.border,
     style = "minimal",
+    zindex = config.ui.zindex,
   })
   return winid
 end

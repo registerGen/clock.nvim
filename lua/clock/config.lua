@@ -7,7 +7,9 @@ local fn = vim.fn
 ---@field border string
 ---@field col_offset integer
 ---@field padding integer[] left, right, top, bottom paddings, respectively
+---@field position string
 ---@field row_offset integer
+---@field zindex integer
 
 ---@class ClockConfig
 ---@field auto_start boolean
@@ -106,7 +108,9 @@ local default = {
     border = "single",
     col_offset = 1,
     padding = { 1, 1, 0, 0 },
+    position = "top",
     row_offset = 1,
+    zindex = 60,
   },
 }
 
@@ -182,6 +186,9 @@ M.set = function(user_config)
   user_config = user_config or {}
   config = vim.tbl_deep_extend("force", default, user_config)
 
+  if config.ui.position ~= "top" and config.ui.position ~= "bottom" then
+    api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
+  end
   validate_time_format()
   validate_font()
 end
