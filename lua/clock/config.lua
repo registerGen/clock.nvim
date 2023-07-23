@@ -166,6 +166,7 @@ local function validate_font()
 end
 
 ---@param user_config? Config
+---@return nil
 M.set = function(user_config)
   user_config = user_config or {}
   config = vim.tbl_deep_extend("force", default, user_config)
