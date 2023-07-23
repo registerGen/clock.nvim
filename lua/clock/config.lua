@@ -4,7 +4,7 @@ local api = vim.api
 local fn = vim.fn
 
 ---@class Config
----@field autostart boolean
+---@field auto_start boolean
 ---@field border string
 ---@field font table<string, string[]>
 ---@field separator string
@@ -13,7 +13,7 @@ local fn = vim.fn
 
 ---@type Config
 local default = {
-  autostart = true,
+  auto_start = true,
   border = "rounded",
   font = {
     ["0"] = {

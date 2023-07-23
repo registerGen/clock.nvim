@@ -18,7 +18,7 @@ M.setup = function(user_config)
     clock.toggle()
   end, {})
 
-  if config.get().autostart then
+  if config.get().auto_start then
     clock.start()
   end
 end
