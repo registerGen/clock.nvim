@@ -15,3 +15,12 @@ require("clock").setup()
 ## Configuration
 
 See `lua/clock/config.lua`.
+
+## Commands
+
+```vim
+" These do what you think they do.
+:ClockStart
+:ClockStop
+:ClockToggle
+```
