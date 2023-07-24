@@ -112,7 +112,7 @@ local default = {
     col_offset = 1,
     padding = { 1, 1, 0, 0 },
     position = "top",
-    row_offset = 1,
+    row_offset = 2,
     zindex = 40,
   },
 }
