@@ -127,6 +127,7 @@ end
 ---@return nil
 local function update_buffer(bufid, lines, extmarks)
   api.nvim_buf_set_lines(bufid, 0, -1, false, lines)
+  api.nvim_buf_clear_namespace(bufid, ns, 0, -1)
 
   for _, extmark in pairs(extmarks) do
     api.nvim_buf_add_highlight(
