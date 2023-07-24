@@ -2,7 +2,7 @@ local M = {}
 
 local api = vim.api
 local uv = vim.loop
-local augroup = api.nvim_create_augroup("clock.nvim", { clear = true })
+local ag = api.nvim_create_augroup("clock.nvim", { clear = true })
 
 local config = require("clock.config").get() ---@type ClockConfig
 
@@ -31,6 +31,7 @@ local function build_lines(time)
     local row = get_font_size("0")[1]
     local len = time:len()
 
+    -- left padding
     for _ = 1, pad[TOP] + row + pad[BOTTOM], 1 do
       lines[#lines + 1] = (" "):rep(pad[LEFT])
     end
@@ -39,6 +40,7 @@ local function build_lines(time)
       local c = time:sub(i, i)
       local col = get_font_size(c)[2]
 
+      -- top padding
       for j = 1, pad[TOP], 1 do
         lines[j] = lines[j] .. (" "):rep(col)
         if i ~= len then
@@ -46,6 +48,7 @@ local function build_lines(time)
         end
       end
 
+      -- the character
       for j = pad[TOP] + 1, pad[TOP] + row, 1 do
         lines[j] = lines[j] .. font[c][j - pad[TOP]]
         if i ~= len then
@@ -53,6 +56,7 @@ local function build_lines(time)
         end
       end
 
+      -- bottom padding
       for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
         lines[j] = lines[j] .. (" "):rep(col)
         if i ~= len then
@@ -61,6 +65,7 @@ local function build_lines(time)
       end
     end
 
+    -- right padding
     for i = 1, pad[TOP] + row + pad[BOTTOM], 1 do
       lines[i] = lines[i] .. (" "):rep(pad[RIGHT])
     end
@@ -159,7 +164,7 @@ function M.start()
   end)
 
   api.nvim_create_autocmd("WinResized", {
-    group = augroup,
+    group = ag,
     callback = function()
       clock_winid = update_window(clock_bufid, clock_winid)
     end,
