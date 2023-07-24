@@ -178,6 +178,10 @@ end
 ---@param winid integer clock window id
 ---@return nil
 local function delete_window(winid)
+  if not api.nvim_win_is_valid(winid) then
+    return
+  end
+
   api.nvim_win_close(winid, true)
 end
 
@@ -186,6 +190,10 @@ end
 ---@param winid integer old clock window id
 ---@return integer new clock window id
 local function update_window(bufid, winid)
+  if not api.nvim_win_is_valid(winid) then
+    return -1
+  end
+
   delete_window(winid)
   return init_window(bufid)
 end
