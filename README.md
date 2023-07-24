@@ -2,7 +2,9 @@
 
 A simple, minimalist clock in neovim.
 
-![Screenshot](https://github.com/registerGen/dotfiles/assets/62944333/cc2a10bf-8100-4f13-a557-d5f8003c8c04)
+![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/26326fa9-bd27-4f30-a6d1-8c943b136fea)
+
+(You can see the configuration [here](https://github.com/registerGen/dotfiles/blob/master/nvim/lua/plugincfg/clock.lua).)
 
 ## Installation & Setup
 
@@ -21,12 +23,19 @@ require("clock").setup({
 The default configuration and the documentation are shown below.
 
 ```lua
-local default = {
+{
   auto_start = true,
   font = {
     -- the "font" of the clock text
     -- see lua/clock/config.lua for details
   },
+  -- fun(c: string, time: string, position: integer): string
+  -- <c> is the character to be highlighted
+  -- <time> is the time represented in a string
+  -- <position> is the position of <c> in <time>
+  hl_group = function(c, time, position)
+    return "NormalText"
+  end,
   separator = "  ", -- separator of two characters
   time_format = "%X",
   update_time = 500, -- update the clock text once per update_time
