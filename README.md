@@ -1,5 +1,9 @@
 # clock.nvim
 
+![lint](https://github.com/registerGen/clock.nvim/workflows/lint/badge.svg)
+![code size](https://img.shields.io/github/languages/code-size/registerGen/clock.nvim)
+![lines of code](https://tokei.rs/b1/github/registerGen/clock.nvim?type=Lua&category=code)
+
 A simple, minimalist clock in neovim.
 
 ![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/26326fa9-bd27-4f30-a6d1-8c943b136fea)
