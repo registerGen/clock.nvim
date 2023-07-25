@@ -4,8 +4,11 @@ local api = vim.api
 local config = require("clock.config")
 
 ---@param user_config? ClockConfig
+---@return nil
 M.setup = function(user_config)
-  config.set(user_config)
+  if not config.set(user_config) then
+    return
+  end
 
   local clock = require("clock.main")
   api.nvim_create_user_command("ClockStart", function()

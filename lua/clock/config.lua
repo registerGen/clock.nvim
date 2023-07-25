@@ -122,11 +122,11 @@ local config = default
 
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
 
----@return nil
+---@return boolean
 local function validate_time_format()
   local time = os.date(config.time_format)
   if type(time) ~= "string" then
-    return
+    return false
   end
 
   for i = 1, time:len(), 1 do
@@ -142,11 +142,14 @@ local function validate_time_format()
 
     if not found then
       api.nvim_err_writeln("formatted time should only contain digits or colons")
+      return false
     end
   end
+
+  return true
 end
 
----@return nil
+---@return boolean
 local function validate_font()
   local font = config.font
   local rows = {}
@@ -161,6 +164,7 @@ local function validate_font()
   for _, c in pairs(char_set) do
     if not font[c] then
       api.nvim_err_writeln(string.format("config.font[\"%s\"] should be accessible", c))
+      return false
     end
 
     local cols = {}
@@ -173,6 +177,7 @@ local function validate_font()
       api.nvim_err_writeln(
         string.format("lengths of each row of config.font[\"%s\"] should be the same", c)
       )
+      return false
     end
 
     rows[#rows + 1] = #font[c]
@@ -180,20 +185,32 @@ local function validate_font()
 
   if not all_same(rows) then
     api.nvim_err_writeln("row numbers of each character of config.font should be the same")
+    return false
   end
+
+  return true
 end
 
 ---@param user_config? ClockConfig
----@return nil
+---@return boolean
 M.set = function(user_config)
   user_config = user_config or {}
   config = vim.tbl_deep_extend("force", default, user_config)
 
   if config.float.position ~= "top" and config.float.position ~= "bottom" then
     api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
+    return false
   end
-  validate_time_format()
-  validate_font()
+
+  if not validate_time_format() then
+    return false
+  end
+
+  if not validate_font() then
+    return false
+  end
+
+  return true
 end
 
 ---@return ClockConfig
