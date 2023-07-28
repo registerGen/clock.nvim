@@ -30,72 +30,72 @@ end
 ---@param time string | osdate time represented in string
 ---@return string[], Extmark[] lines and extmarks
 local function build_lines_and_extmarks(time)
-  if type(time) == "string" then
-    local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
-
-    local lines = {} ---@type string[]
-    local extmarks = {} ---@type Extmark[]
-    local font, sep, pad = config.font, config.separator, config.float.padding
-    local get_hl_group = config.hl_group
-    local row, _ = get_font_size("0")
-    local len = time:len()
-
-    -- left padding
-    for _ = 1, pad[TOP] + row + pad[BOTTOM], 1 do
-      lines[#lines + 1] = (" "):rep(pad[LEFT])
-    end
-
-    for i = 1, len, 1 do
-      local c = time:sub(i, i)
-      local _, col = get_font_size(c)
-      local hl_group = get_hl_group(c, time, i)
-
-      -- top padding
-      for j = 1, pad[TOP], 1 do
-        lines[j] = lines[j] .. (" "):rep(col)
-        if i ~= len then
-          lines[j] = lines[j] .. sep
-        end
-      end
-
-      -- the character
-      for j = pad[TOP] + 1, pad[TOP] + row, 1 do
-        local start_col, end_col
-
-        start_col = lines[j]:len()
-        lines[j] = lines[j] .. font[c][j - pad[TOP]]
-        end_col = lines[j]:len()
-
-        extmarks[#extmarks + 1] = {
-          line = j - 1,
-          start_col = start_col,
-          end_col = end_col,
-          hl_group = hl_group,
-        }
-
-        if i ~= len then
-          lines[j] = lines[j] .. sep
-        end
-      end
-
-      -- bottom padding
-      for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
-        lines[j] = lines[j] .. (" "):rep(col)
-        if i ~= len then
-          lines[j] = lines[j] .. sep
-        end
-      end
-    end
-
-    -- right padding
-    for i = 1, pad[TOP] + row + pad[BOTTOM], 1 do
-      lines[i] = lines[i] .. (" "):rep(pad[RIGHT])
-    end
-
-    return lines, extmarks
+  if type(time) ~= "string" then
+    return {}, {}
   end
 
-  return {}, {}
+  local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
+
+  local lines = {} ---@type string[]
+  local extmarks = {} ---@type Extmark[]
+  local font, sep, pad = config.font, config.separator, config.float.padding
+  local get_hl_group = config.hl_group
+  local row, _ = get_font_size("0")
+  local len = time:len()
+
+  -- left padding
+  for _ = 1, pad[TOP] + row + pad[BOTTOM], 1 do
+    lines[#lines + 1] = (" "):rep(pad[LEFT])
+  end
+
+  for i = 1, len, 1 do
+    local c = time:sub(i, i)
+    local _, col = get_font_size(c)
+    local hl_group = get_hl_group(c, time, i)
+
+    -- top padding
+    for j = 1, pad[TOP], 1 do
+      lines[j] = lines[j] .. (" "):rep(col)
+      if i ~= len then
+        lines[j] = lines[j] .. sep
+      end
+    end
+
+    -- the character
+    for j = pad[TOP] + 1, pad[TOP] + row, 1 do
+      local start_col, end_col
+
+      start_col = lines[j]:len()
+      lines[j] = lines[j] .. font[c][j - pad[TOP]]
+      end_col = lines[j]:len()
+
+      extmarks[#extmarks + 1] = {
+        line = j - 1,
+        start_col = start_col,
+        end_col = end_col,
+        hl_group = hl_group,
+      }
+
+      if i ~= len then
+        lines[j] = lines[j] .. sep
+      end
+    end
+
+    -- bottom padding
+    for j = pad[TOP] + row + 1, pad[TOP] + row + pad[BOTTOM], 1 do
+      lines[j] = lines[j] .. (" "):rep(col)
+      if i ~= len then
+        lines[j] = lines[j] .. sep
+      end
+    end
+  end
+
+  -- right padding
+  for i = 1, pad[TOP] + row + pad[BOTTOM], 1 do
+    lines[i] = lines[i] .. (" "):rep(pad[RIGHT])
+  end
+
+  return lines, extmarks
 end
 
 -- Initialize clock buffer.
