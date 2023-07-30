@@ -8,8 +8,6 @@ A simple, minimalist clock in neovim.
 
 ![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/486df8bc-a145-451f-b766-d12bdbd6781d)
 
-(You can see the configuration [here](https://github.com/registerGen/dotfiles/blob/master/nvim/lua/plugincfg/clock.lua).)
-
 ## Installation & Setup
 
 Install it as a normal neovim plugin and call the `setup()` function.
@@ -52,6 +50,7 @@ The default configuration and the documentation are shown below.
   -- This function has higher priority.
   hl_group_pixel = nil,
   separator = "  ", -- separator of two characters
+  separator_hl = "NormalText",
   time_format = "%X",
   update_time = 500, -- update the clock text once per update_time
 }

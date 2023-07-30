@@ -17,6 +17,7 @@ local api = vim.api
 ---@field hl_group fun(c: string, time: string, position: integer): string
 ---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
 ---@field separator string
+---@field separator_hl string
 ---@field time_format string
 ---@field update_time integer
 
@@ -115,6 +116,7 @@ local default = {
   end,
   hl_group_pixel = nil,
   separator = "  ",
+  separator_hl = "NormalText",
   time_format = "%X",
   update_time = 500,
 }

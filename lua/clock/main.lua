@@ -92,7 +92,16 @@ local function build_lines_and_extmarks(time)
       end
 
       if i ~= len then
+        start_col = lines[j]:len()
         lines[j] = lines[j] .. sep
+        end_col = lines[j]:len()
+
+        extmarks[#extmarks + 1] = {
+          line = j - 1,
+          start_col = start_col,
+          end_col = end_col,
+          hl_group = config.separator_hl,
+        }
       end
     end
 
