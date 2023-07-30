@@ -86,7 +86,7 @@ local function build_lines_and_extmarks(time)
             line = j - 1,
             start_col = positions[k] + start_col - 1,
             end_col = positions[k + 1] + start_col - 1,
-            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k)
+            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k),
           }
         end
       end
