@@ -12,17 +12,25 @@ local api = vim.api
 
 ---@class ClockConfig
 ---@field auto_start boolean
+---@field float ClockFloatConfig
 ---@field font table<string, string[]>
 ---@field hl_group fun(c: string, time: string, position: integer): string
 ---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
 ---@field separator string
 ---@field time_format string
 ---@field update_time integer
----@field float ClockFloatConfig
 
 ---@type ClockConfig
 local default = {
   auto_start = true,
+  float = {
+    border = "single",
+    col_offset = 1,
+    padding = { 1, 1, 0, 0 },
+    position = "top",
+    row_offset = 2,
+    zindex = 40,
+  },
   font = {
     ["0"] = {
       "██████",
@@ -109,14 +117,6 @@ local default = {
   separator = "  ",
   time_format = "%X",
   update_time = 500,
-  float = {
-    border = "single",
-    col_offset = 1,
-    padding = { 1, 1, 0, 0 },
-    position = "top",
-    row_offset = 2,
-    zindex = 40,
-  },
 }
 
 ---@type ClockConfig

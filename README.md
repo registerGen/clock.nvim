@@ -29,6 +29,14 @@ The default configuration and the documentation are shown below.
 ```lua
 {
   auto_start = true,
+  float = {
+    border = "single",
+    col_offset = 1,
+    padding = { 1, 1, 0, 0 }, -- left, right, top, bottom padding, respectively
+    position = "top", -- or "bottom"
+    row_offset = 2,
+    zindex = 40,
+  },
   font = {
     -- the "font" of the clock text
     -- see lua/clock/config.lua for details
@@ -40,17 +48,12 @@ The default configuration and the documentation are shown below.
   hl_group = function(c, time, position)
     return "NormalText"
   end,
+  -- nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
+  -- This function has higher priority.
+  hl_group_pixel = nil,
   separator = "  ", -- separator of two characters
   time_format = "%X",
   update_time = 500, -- update the clock text once per update_time
-  float = {
-    border = "single",
-    col_offset = 1,
-    padding = { 1, 1, 0, 0 }, -- left, right, top, bottom padding, respectively
-    position = "top", -- or "bottom"
-    row_offset = 2,
-    zindex = 40,
-  },
 }
 ```
 
