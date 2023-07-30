@@ -14,6 +14,7 @@ local api = vim.api
 ---@field auto_start boolean
 ---@field font table<string, string[]>
 ---@field hl_group fun(c: string, time: string, position: integer): string
+---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
 ---@field separator string
 ---@field time_format string
 ---@field update_time integer
@@ -104,6 +105,7 @@ local default = {
   hl_group = function()
     return "NormalText"
   end,
+  hl_group_pixel = nil,
   separator = "  ",
   time_format = "%X",
   update_time = 500,

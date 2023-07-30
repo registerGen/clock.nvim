@@ -39,7 +39,7 @@ local function build_lines_and_extmarks(time)
   local lines = {} ---@type string[]
   local extmarks = {} ---@type Extmark[]
   local font, sep, pad = config.font, config.separator, config.float.padding
-  local get_hl_group = config.hl_group
+  local get_hl_group, get_hl_group_by_pixel = config.hl_group, config.hl_group_pixel
   local row, _ = get_font_size("0")
   local len = time:len()
 
@@ -64,17 +64,32 @@ local function build_lines_and_extmarks(time)
     -- the character
     for j = pad[TOP] + 1, pad[TOP] + row, 1 do
       local start_col, end_col
+      local font_line = font[c][j - pad[TOP]]
 
       start_col = lines[j]:len()
-      lines[j] = lines[j] .. font[c][j - pad[TOP]]
+      lines[j] = lines[j] .. font_line
       end_col = lines[j]:len()
 
-      extmarks[#extmarks + 1] = {
-        line = j - 1,
-        start_col = start_col,
-        end_col = end_col,
-        hl_group = hl_group,
-      }
+      if not get_hl_group_by_pixel then
+        extmarks[#extmarks + 1] = {
+          line = j - 1,
+          start_col = start_col,
+          end_col = end_col,
+          hl_group = hl_group,
+        }
+      else
+        local positions = vim.str_utf_pos(font_line)
+        positions[#positions + 1] = font_line:len() + 1
+
+        for k = 1, col, 1 do
+          extmarks[#extmarks + 1] = {
+            line = j - 1,
+            start_col = positions[k] + start_col - 1,
+            end_col = positions[k + 1] + start_col - 1,
+            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k)
+          }
+        end
+      end
 
       if i ~= len then
         lines[j] = lines[j] .. sep
