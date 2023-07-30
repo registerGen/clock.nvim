@@ -6,7 +6,7 @@
 
 A simple, minimalist clock in neovim.
 
-![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/26326fa9-bd27-4f30-a6d1-8c943b136fea)
+![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/486df8bc-a145-451f-b766-d12bdbd6781d)
 
 (You can see the configuration [here](https://github.com/registerGen/dotfiles/blob/master/nvim/lua/plugincfg/clock.lua).)
 
