@@ -1,7 +1,7 @@
 local M = {}
 
 local api = vim.api
-local uv = vim.loop
+local uv = vim.uv
 local ag = api.nvim_create_augroup("clock.nvim", { clear = true })
 local ns = api.nvim_create_namespace("clock.nvim")
 
