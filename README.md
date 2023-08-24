@@ -1,16 +1,14 @@
 # clock.nvim
 
-![lint](https://github.com/registerGen/clock.nvim/workflows/lint/badge.svg)
-![code size](https://img.shields.io/github/languages/code-size/registerGen/clock.nvim)
-![lines of code](https://tokei.rs/b1/github/registerGen/clock.nvim?type=Lua&category=code)
-
 A simple, minimalist clock in neovim.
 
-![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/486df8bc-a145-451f-b766-d12bdbd6781d)
+![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/660f942a-cdd8-4232-9f1b-2844f4abe6d2)
+
+The configuration can be found in the [gallery](https://github.com/registerGen/clock.nvim/wiki/Gallery)
 
 ## Installation & Setup
 
-Install it as a normal neovim plugin and call the `setup()` function.
+Install it as a typical neovim plugin and call the `setup()` function.
 
 ```lua
 require("clock").setup()
@@ -47,12 +45,12 @@ The default configuration and the documentation are shown below.
     return "NormalText"
   end,
   -- nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
-  -- This function has higher priority.
+  -- This function has higher priority than hl_group.
   hl_group_pixel = nil,
   separator = "  ", -- separator of two characters
   separator_hl = "NormalText",
   time_format = "%X",
-  update_time = 500, -- update the clock text once per update_time
+  update_time = 500, -- update the clock text once per <update_time> (in ms)
 }
 ```
 
