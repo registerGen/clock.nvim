@@ -78,7 +78,7 @@ local function build_lines_and_extmarks(time)
           hl_group = hl_group,
         }
       else
-        local positions = vim.str_utf_pos(font_line)
+        local positions = assert(vim.str_utf_pos(font_line))
         positions[#positions + 1] = font_line:len() + 1
 
         for k = 1, col, 1 do
