@@ -1,5 +1,3 @@
-local M = {}
-
 local api = vim.api
 local uv = vim.uv
 local ag = api.nvim_create_augroup("clock.nvim", { clear = true })
@@ -222,61 +220,76 @@ local function update_window(bufid, winid)
   return init_window(bufid)
 end
 
-local clock_running = false ---@type boolean
-local clock_timer ---@type uv_timer_t
-local clock_bufid ---@type integer
-local clock_winid ---@type integer
+-- A clock.
+---@class Clock
+---
+---@field running boolean
+---@field timer uv_timer_t
+---@field bufid integer
+---@field winid integer
+---
+---@field init fun(self): Clock
+---@field start fun(self): nil
+---@field stop fun(self): nil
+---@field toggle fun(self): nil
+Clock = {}
 
----@return nil
-function M.start()
-  if clock_running then
+function Clock:init()
+  local lines, extmarks = build_lines_and_extmarks(get_time())
+  local bufid = init_buffer(lines, extmarks)
+  local winid = init_window(bufid)
+
+  self.__index = self
+  return setmetatable({
+    running = false,
+    timer = assert(uv.new_timer()),
+    bufid = bufid,
+    winid = winid,
+  }, self)
+end
+
+function Clock:start()
+  if self.running then
     return
   end
 
-  local lines, extmarks = build_lines_and_extmarks(get_time())
-  clock_bufid = init_buffer(lines, extmarks)
-  clock_winid = init_window(clock_bufid)
-
-  clock_timer = assert(uv.new_timer())
-  clock_timer:start(config.update_time, config.update_time, function()
+  self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
-      lines, extmarks = build_lines_and_extmarks(get_time())
-      update_buffer(clock_bufid, lines, extmarks)
+      local lines, extmarks = build_lines_and_extmarks(get_time())
+      update_buffer(self.bufid, lines, extmarks)
     end)
   end)
 
   api.nvim_create_autocmd("WinResized", {
     group = ag,
     callback = function()
-      clock_winid = update_window(clock_bufid, clock_winid)
+      self.winid = update_window(self.bufid, self.winid)
     end,
   })
 
-  clock_running = true
+  self.running = true
 end
 
----@return nil
-function M.stop()
-  if not clock_running then
+function Clock:stop()
+  if not self.running then
     return
   end
 
-  clock_timer:stop()
-  clock_timer:close()
+  self.timer:stop()
 
-  delete_window(clock_winid)
-  delete_buffer(clock_bufid)
+  delete_window(self.winid)
+  delete_buffer(self.bufid)
 
-  clock_running = false
+  self.running = false
 end
 
 ---@return nil
-function M.toggle()
-  if clock_running then
-    M.stop()
+function Clock:toggle()
+  if self.running then
+    Clock.stop()
   else
-    M.start()
+    Clock.start()
   end
 end
 
-return M
+return Clock

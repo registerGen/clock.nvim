@@ -10,19 +10,19 @@ M.setup = function(user_config)
     return
   end
 
-  local clock = require("clock.main")
+  local clock = require("clock.main"):init()
   api.nvim_create_user_command("ClockStart", function()
-    clock.start()
+    clock:start()
   end, {})
   api.nvim_create_user_command("ClockStop", function()
-    clock.stop()
+    clock:stop()
   end, {})
   api.nvim_create_user_command("ClockToggle", function()
-    clock.toggle()
+    clock:toggle()
   end, {})
 
   if config.get().auto_start then
-    clock.start()
+    clock:start()
   end
 end
 
