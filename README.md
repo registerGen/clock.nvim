@@ -4,7 +4,7 @@ A simple, minimalist clock in neovim.
 
 ![Screenshot](https://github.com/registerGen/clock.nvim/assets/62944333/660f942a-cdd8-4232-9f1b-2844f4abe6d2)
 
-The configuration can be found in the [gallery](https://github.com/registerGen/clock.nvim/wiki/Gallery)
+The configuration can be found in the [gallery](https://github.com/registerGen/clock.nvim/wiki/Gallery).
 
 ## Installation & Setup
 
