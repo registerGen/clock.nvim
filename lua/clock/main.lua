@@ -235,16 +235,12 @@ end
 Clock = {}
 
 function Clock:init()
-  local lines, extmarks = build_lines_and_extmarks(get_time())
-  local bufid = init_buffer(lines, extmarks)
-  local winid = init_window(bufid)
-
   self.__index = self
   return setmetatable({
     running = false,
     timer = assert(uv.new_timer()),
-    bufid = bufid,
-    winid = winid,
+    bufid = -1,
+    winid = -1,
   }, self)
 end
 
@@ -253,9 +249,13 @@ function Clock:start()
     return
   end
 
+  local lines, extmarks = build_lines_and_extmarks(get_time())
+  self.bufid = init_buffer(lines, extmarks)
+  self.winid = init_window(self.bufid)
+
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
-      local lines, extmarks = build_lines_and_extmarks(get_time())
+      lines, extmarks = build_lines_and_extmarks(get_time())
       update_buffer(self.bufid, lines, extmarks)
     end)
   end)
@@ -283,12 +283,11 @@ function Clock:stop()
   self.running = false
 end
 
----@return nil
 function Clock:toggle()
   if self.running then
-    Clock.stop()
+    self:stop()
   else
-    Clock.start()
+    self:start()
   end
 end
 
