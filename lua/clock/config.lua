@@ -28,7 +28,7 @@ local default = {
     border = "single",
     col_offset = 1,
     padding = { 1, 1, 0, 0 },
-    position = "top",
+    position = "bottom",
     row_offset = 2,
     zindex = 40,
   },

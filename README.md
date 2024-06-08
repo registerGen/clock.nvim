@@ -29,7 +29,7 @@ The default configuration and the documentation are shown below.
     border = "single",
     col_offset = 1,
     padding = { 1, 1, 0, 0 }, -- left, right, top, bottom padding, respectively
-    position = "top", -- or "bottom"
+    position = "bottom", -- or "top"
     row_offset = 2,
     zindex = 40,
   },
