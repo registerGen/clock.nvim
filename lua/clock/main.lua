@@ -32,7 +32,8 @@ local function build_lines_and_extmarks(time, mode)
   local lines = {} ---@type string[]
   local extmarks = {} ---@type Extmark[]
   local font, sep, pad = config.font, config.separator, config.float.padding
-  local get_hl_group, get_hl_group_by_pixel = config.modes[mode].hl_group, config.modes[mode].hl_group_pixel
+  local get_hl_group, get_hl_group_by_pixel =
+    config.modes[mode].hl_group, config.modes[mode].hl_group_pixel
   local row, _ = get_font_size("0")
   local len = time:len()
 
