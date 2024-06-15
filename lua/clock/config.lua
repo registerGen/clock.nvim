@@ -11,8 +11,9 @@ local api = vim.api
 ---@field zindex integer
 
 ---@class ClockModeConfig
----@field hl_group fun(c: string, time: string, position: integer): string
----@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
+---@field argc integer
+---@field hl_group string | fun(c: string, time: string, position: integer, argv: table): string
+---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
 ---@field hl_group_separator: string
 ---@field time_format fun(): string
 
@@ -117,7 +118,7 @@ local default = {
   separator = "  ",
   modes = {
     default = {
-      hl_group = function(c, time, position)
+      hl_group = function()
         return "NormalText"
       end,
       hl_group_pixel = nil,
@@ -215,6 +216,14 @@ M.set = function(user_config)
 
   for k, _ in pairs(config.modes) do
     local mode = config.modes[k]
+
+    if type(mode.hl_group) == "string" then
+      local hl_group = mode.hl_group
+      mode.hl_group = function()
+        return hl_group
+      end
+    end
+
     mode.hl_group = mode.hl_group or default.hl_group
     -- hl_group_pixel should be ignored.
     mode.hl_group_separator = mode.hl_group_separator or default.hl_group_separator
