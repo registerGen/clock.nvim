@@ -5,12 +5,6 @@ local ns = api.nvim_create_namespace("clock.nvim")
 
 local config = require("clock.config").get() ---@type ClockConfig
 
----@return string | osdate
-local function get_time()
-  local format = config.time_format
-  return os.date(format)
-end
-
 ---@param c string
 ---@return integer, integer the row and column of font[c]
 local function get_font_size(c)
@@ -26,8 +20,9 @@ end
 ---@field hl_group string
 ---
 ---@param time string | osdate time represented in string
+---@param mode string current mode
 ---@return string[], Extmark[] lines and extmarks
-local function build_lines_and_extmarks(time)
+local function build_lines_and_extmarks(time, mode)
   if type(time) ~= "string" then
     return {}, {}
   end
@@ -37,7 +32,7 @@ local function build_lines_and_extmarks(time)
   local lines = {} ---@type string[]
   local extmarks = {} ---@type Extmark[]
   local font, sep, pad = config.font, config.separator, config.float.padding
-  local get_hl_group, get_hl_group_by_pixel = config.hl_group, config.hl_group_pixel
+  local get_hl_group, get_hl_group_by_pixel = config.modes[mode].hl_group, config.modes[mode].hl_group_pixel
   local row, _ = get_font_size("0")
   local len = time:len()
 
@@ -49,7 +44,10 @@ local function build_lines_and_extmarks(time)
   for i = 1, len, 1 do
     local c = time:sub(i, i)
     local _, col = get_font_size(c)
-    local hl_group = get_hl_group(c, time, i)
+    local hl_group = "NormalText"
+    if get_hl_group then
+      hl_group = get_hl_group(c, time, i)
+    end
 
     -- top padding
     for j = 1, pad[TOP], 1 do
@@ -89,6 +87,7 @@ local function build_lines_and_extmarks(time)
         end
       end
 
+      -- the separator
       if i ~= len then
         start_col = lines[j]:len()
         lines[j] = lines[j] .. sep
@@ -98,7 +97,7 @@ local function build_lines_and_extmarks(time)
           line = j - 1,
           start_col = start_col,
           end_col = end_col,
-          hl_group = config.separator_hl,
+          hl_group = config.modes[mode].hl_group_separator or "NormalText",
         }
       end
     end
@@ -225,12 +224,15 @@ end
 ---
 ---@field running boolean
 ---@field timer uv_timer_t
+---@field mode string
 ---@field bufid integer
 ---@field winid integer
 ---
 ---@field init fun(self): Clock
+---@field get_time fun(self): string
 ---@field start fun(self): nil
 ---@field stop fun(self): nil
+---@field change_mode fun(string): nil
 ---@field toggle fun(self): nil
 Clock = {}
 
@@ -239,9 +241,15 @@ function Clock:init()
   return setmetatable({
     running = false,
     timer = assert(uv.new_timer()),
+    mode = "default",
     bufid = -1,
     winid = -1,
   }, self)
+end
+
+function Clock:get_time()
+  local time_format = config.modes[self.mode].time_format
+  return time_format()
 end
 
 function Clock:start()
@@ -249,13 +257,13 @@ function Clock:start()
     return
   end
 
-  local lines, extmarks = build_lines_and_extmarks(get_time())
+  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
   self.bufid = init_buffer(lines, extmarks)
   self.winid = init_window(self.bufid)
 
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
-      lines, extmarks = build_lines_and_extmarks(get_time())
+      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
       update_buffer(self.bufid, lines, extmarks)
     end)
   end)
@@ -281,6 +289,27 @@ function Clock:stop()
   delete_buffer(self.bufid)
 
   self.running = false
+end
+
+function Clock:change_mode(mode)
+  if not self.running then
+    return
+  end
+
+  if not config.modes[mode] then
+    api.nvim_err_writeln(string.format("mode %s does not exist", mode))
+    return
+  end
+
+  self.timer:stop()
+
+  self.mode = mode
+  self.timer:start(config.update_time, config.update_time, function()
+    vim.schedule(function()
+      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+      update_buffer(self.bufid, lines, extmarks)
+    end)
+  end)
 end
 
 function Clock:toggle()

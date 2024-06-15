@@ -10,15 +10,18 @@ local api = vim.api
 ---@field row_offset integer
 ---@field zindex integer
 
+---@class ClockModeConfig
+---@field hl_group fun(c: string, time: string, position: integer): string
+---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
+---@field hl_group_separator: string
+---@field time_format fun(): string
+
 ---@class ClockConfig
 ---@field auto_start boolean
 ---@field float ClockFloatConfig
 ---@field font table<string, string[]>
----@field hl_group fun(c: string, time: string, position: integer): string
----@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
 ---@field separator string
----@field separator_hl string
----@field time_format string
+---@field modes ClockModeConfig[]
 ---@field update_time integer
 
 ---@type ClockConfig
@@ -111,13 +114,19 @@ local default = {
       "  ",
     },
   },
-  hl_group = function()
-    return "NormalText"
-  end,
-  hl_group_pixel = nil,
   separator = "  ",
-  separator_hl = "NormalText",
-  time_format = "%X",
+  modes = {
+    default = {
+      hl_group = function(c, time, position)
+        return "NormalText"
+      end,
+      hl_group_pixel = nil,
+      hl_group_separator = "NormalText",
+      time_format = function()
+        return os.date("%X")
+      end,
+    },
+  },
   update_time = 500,
 }
 
@@ -127,26 +136,28 @@ local config = default
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
 
 ---@return boolean
-local function validate_time_format()
-  local time = os.date(config.time_format)
-  if type(time) ~= "string" then
-    return false
-  end
-
-  for i = 1, time:len(), 1 do
-    local c = time:sub(i, i)
-    local found = false
-
-    for _, v in pairs(char_set) do
-      if c == v then
-        found = true
-        break
-      end
+local function validate_time_formats()
+  for _, v in pairs(config.modes) do
+    local time = os.date(v.time_format())
+    if type(time) ~= "string" then
+      return false
     end
 
-    if not found then
-      api.nvim_err_writeln("formatted time should only contain digits or colons")
-      return false
+    for i = 1, time:len(), 1 do
+      local c = time:sub(i, i)
+      local found = false
+
+      for _, v in pairs(char_set) do
+        if c == v then
+          found = true
+          break
+        end
+      end
+
+      if not found then
+        api.nvim_err_writeln("formatted time should only contain digits or colons")
+        return false
+      end
     end
   end
 
@@ -198,15 +209,19 @@ end
 ---@param user_config? ClockConfig
 ---@return boolean
 M.set = function(user_config)
-  user_config = user_config or {}
-  config = vim.tbl_deep_extend("force", default, user_config)
+  config = vim.tbl_deep_extend("force", default, user_config or {})
 
   if config.float.position ~= "top" and config.float.position ~= "bottom" then
     api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
     return false
   end
 
-  if not validate_time_format() then
+  if not config.modes.default then
+    apt.nvim_err_writeln("config.modes.default should be accessible")
+    return false
+  end
+
+  if not validate_time_formats() then
     return false
   end
 

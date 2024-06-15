@@ -21,6 +21,12 @@ M.setup = function(user_config)
     clock:toggle()
   end, {})
 
+  api.nvim_create_user_command("ClockChangeMode", function(argv)
+    clock:change_mode(argv.args)
+  end, {
+    nargs = 1,
+  })
+
   if config.get().auto_start then
     clock:start()
   end
