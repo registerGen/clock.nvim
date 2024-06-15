@@ -26,6 +26,7 @@ function M.rainbow()
     api.nvim_set_hl(0, "Clock" .. tostring(i), { fg = colors[i], bg = "bg" })
   end
 
+  -- stylua: ignore start
   local hl_map = {
     [11] = 1,  [12] = 2,  [13] = 3,  [14] = 4,  [15] = 5,  [16] = 6,
     [21] = 9,  [22] = 10, [23] = 11, [24] = 12, [25] = 13, [26] = 14,
@@ -36,6 +37,7 @@ function M.rainbow()
     [71] = 41, [72] = 42, [73] = 43, [74] = 44, [75] = 45, [76] = 46,
     [81] = 49, [82] = 50, [83] = 51, [84] = 52, [85] = 53, [86] = 54,
   }
+  -- stylua: ignore end
 
   return {
     hl_group_pixel = function(_, _, position, _, pixel_col)

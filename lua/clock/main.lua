@@ -95,7 +95,7 @@ local function build_lines_and_extmarks(time, mode)
           line = j - 1,
           start_col = start_col,
           end_col = end_col,
-          hl_group = config.modes[mode].hl_group_separator
+          hl_group = config.modes[mode].hl_group_separator,
         }
       end
     end
