@@ -211,13 +211,18 @@ end
 M.set = function(user_config)
   config = vim.tbl_deep_extend("force", default, user_config or {})
 
-  if config.float.position ~= "top" and config.float.position ~= "bottom" then
-    api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
-    return false
+  local default = config.modes.default
+
+  for k, _ in pairs(config.modes) do
+    local mode = config.modes[k]
+    mode.hl_group = mode.hl_group or default.hl_group
+    -- hl_group_pixel should be ignored.
+    mode.hl_group_separator = mode.hl_group_separator or default.hl_group_separator
+    mode.time_format = mode.time_format or default.time_format
   end
 
-  if not config.modes.default then
-    apt.nvim_err_writeln("config.modes.default should be accessible")
+  if config.float.position ~= "top" and config.float.position ~= "bottom" then
+    api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
     return false
   end
 

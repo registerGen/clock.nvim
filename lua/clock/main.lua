@@ -45,10 +45,7 @@ local function build_lines_and_extmarks(time, mode)
   for i = 1, len, 1 do
     local c = time:sub(i, i)
     local _, col = get_font_size(c)
-    local hl_group = "NormalText"
-    if get_hl_group then
-      hl_group = get_hl_group(c, time, i)
-    end
+    local hl_group = get_hl_group(c, time, i)
 
     -- top padding
     for j = 1, pad[TOP], 1 do
@@ -98,7 +95,7 @@ local function build_lines_and_extmarks(time, mode)
           line = j - 1,
           start_col = start_col,
           end_col = end_col,
-          hl_group = config.modes[mode].hl_group_separator or "NormalText",
+          hl_group = config.modes[mode].hl_group_separator
         }
       end
     end
