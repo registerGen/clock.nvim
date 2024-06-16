@@ -59,7 +59,7 @@ M.setup = function(user_config)
       end
 
       return result
-    end
+    end,
   })
 
   if config.get().auto_start then
