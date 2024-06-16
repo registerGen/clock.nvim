@@ -12,6 +12,7 @@ local api = vim.api
 
 ---@class ClockModeConfig
 ---@field argc integer
+---@field float ClockFloatConfig
 ---@field hl_group string | fun(c: string, time: string, position: integer, argv: table): string
 ---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
 ---@field hl_group_separator: string
@@ -19,7 +20,6 @@ local api = vim.api
 
 ---@class ClockConfig
 ---@field auto_start boolean
----@field float ClockFloatConfig
 ---@field font table<string, string[]>
 ---@field separator string
 ---@field modes ClockModeConfig[]
@@ -28,14 +28,6 @@ local api = vim.api
 ---@type ClockConfig
 local default = {
   auto_start = true,
-  float = {
-    border = "single",
-    col_offset = 1,
-    padding = { 1, 1, 0, 0 },
-    position = "bottom",
-    row_offset = 2,
-    zindex = 40,
-  },
   font = {
     ["0"] = {
       "██████",
@@ -118,6 +110,14 @@ local default = {
   separator = "  ",
   modes = {
     default = {
+      float = {
+        border = "single",
+        col_offset = 1,
+        padding = { 1, 1, 0, 0 },
+        position = "bottom",
+        row_offset = 2,
+        zindex = 40,
+      },
       hl_group = function()
         return "NormalText"
       end,
@@ -185,25 +185,25 @@ M.set = function(user_config)
 
   local default = config.modes.default
 
-  for k, _ in pairs(config.modes) do
-    local mode = config.modes[k]
-
-    if type(mode.hl_group) == "string" then
-      local hl_group = mode.hl_group
-      mode.hl_group = function()
+  for k, v in pairs(config.modes) do
+    if type(v.hl_group) == "string" then
+      local hl_group = v.hl_group
+      v.hl_group = function()
         return hl_group
       end
     end
 
-    mode.hl_group = mode.hl_group or default.hl_group
-    -- hl_group_pixel should be ignored.
-    mode.hl_group_separator = mode.hl_group_separator or default.hl_group_separator
-    mode.time_format = mode.time_format or default.time_format
+    -- hl_group_pixel should override the default even if it is nil.
+    local hl_group_pixel = v.hl_group_pixel
+    config.modes[k] = vim.tbl_deep_extend("force", default, v)
+    config.modes[k].hl_group_pixel = hl_group_pixel
   end
 
-  if config.float.position ~= "top" and config.float.position ~= "bottom" then
-    api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
-    return false
+  for _, v in pairs(config.modes) do
+    if v.float.position ~= "top" and v.float.position ~= "bottom" then
+      api.nvim_err_writeln("float.position should be either \"top\" or \"bottom\"")
+      return false
+    end
   end
 
   if not validate_font() then

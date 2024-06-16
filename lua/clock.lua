@@ -22,7 +22,14 @@ M.setup = function(user_config)
   end, {})
 
   api.nvim_create_user_command("ClockChangeMode", function(argv)
-    clock:change_mode(argv.args)
+    local mode = argv.args
+
+    if not config.get().modes[mode] then
+      api.nvim_err_writeln(string.format("mode %s does not exist", mode))
+      return
+    end
+
+    clock:change_mode(mode)
   end, {
     nargs = 1,
   })

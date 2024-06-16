@@ -31,7 +31,7 @@ local function build_lines_and_extmarks(time, mode)
 
   local lines = {} ---@type string[]
   local extmarks = {} ---@type Extmark[]
-  local font, sep, pad = config.font, config.separator, config.float.padding
+  local font, sep, pad = config.font, config.separator, config.modes[mode].float.padding
   local get_hl_group, get_hl_group_by_pixel =
     config.modes[mode].hl_group, config.modes[mode].hl_group_pixel
   local row, _ = get_font_size("0")
@@ -170,9 +170,10 @@ end
 
 -- Initialize clock window.
 ---@param bufid integer clock buffer id
+---@param mode string current mode
 ---@return integer clock window id
-local function init_window(bufid)
-  local float = config.float
+local function init_window(bufid, mode)
+  local float = config.modes[mode].float
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
   local width, height = api.nvim_strwidth(lines[1]), #lines
   local rows, columns =
@@ -207,14 +208,15 @@ end
 -- Re-open clock window.
 ---@param bufid integer clock buffer id
 ---@param winid integer old clock window id
+---@param mode string current mode
 ---@return integer new clock window id
-local function update_window(bufid, winid)
+local function update_window(bufid, winid, mode)
   if not api.nvim_win_is_valid(winid) then
     return -1
   end
 
   delete_window(winid)
-  return init_window(bufid)
+  return init_window(bufid, mode)
 end
 
 -- A clock.
@@ -257,7 +259,7 @@ function Clock:start()
 
   local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
   self.bufid = init_buffer(lines, extmarks)
-  self.winid = init_window(self.bufid)
+  self.winid = init_window(self.bufid, self.mode)
 
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
@@ -269,7 +271,7 @@ function Clock:start()
   api.nvim_create_autocmd("WinResized", {
     group = ag,
     callback = function()
-      self.winid = update_window(self.bufid, self.winid)
+      self.winid = update_window(self.bufid, self.winid, self.mode)
     end,
   })
 
@@ -294,14 +296,14 @@ function Clock:change_mode(mode)
     return
   end
 
-  if not config.modes[mode] then
-    api.nvim_err_writeln(string.format("mode %s does not exist", mode))
-    return
-  end
-
   self.timer:stop()
 
   self.mode = mode
+
+  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+  update_buffer(self.bufid, lines, extmarks)
+  self.winid = update_window(self.bufid, self.winid, self.mode)
+
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
       lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
