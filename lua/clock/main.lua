@@ -227,7 +227,7 @@ end
 ---
 ---@field init fun(self: Clock): Clock
 ---@field get_time fun(self: Clock): string
----@field start fun(self: Clock, restart?: boolean): nil
+---@field start fun(self: Clock): nil
 ---@field stop fun(self: Clock): nil
 ---@field change_mode fun(self: Clock, mode: { [1]: string, argv: table }): nil
 ---@field toggle fun(self: Clock): nil
@@ -313,7 +313,7 @@ function Clock:toggle()
   if self.running then
     self:stop()
   else
-    self:start(true)
+    self:start()
   end
 end
 
