@@ -199,10 +199,11 @@ M.set = function(user_config)
       end
     end
 
-    -- hl_group_pixel should override the default even if it is nil.
-    local hl_group_pixel = v.hl_group_pixel
+    local hl_group, hl_group_pixel = v.hl_group, v.hl_group_pixel
     config.modes[k] = vim.tbl_deep_extend("force", default_mode, v)
-    config.modes[k].hl_group_pixel = hl_group_pixel
+    if hl_group and not hl_group_pixel then
+      config.modes[k].hl_group_pixel = nil
+    end
   end
 
   for _, v in pairs(config.modes) do
