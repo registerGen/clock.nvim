@@ -6,27 +6,23 @@ local ns = api.nvim_create_namespace("clock.nvim")
 local config = require("clock.config").get() ---@type ClockConfig
 
 ---@param c string
----@return integer, integer the row and column of font[c]
+---@return integer, integer # the row and column of font[c]
 local function get_font_size(c)
   local font = config.font
   return #font[c], api.nvim_strwidth(font[c][1])
 end
 
--- Build the lines and extmarks of the clock buffer.
 ---@class Extmark
 ---@field line integer
 ---@field start_col integer
 ---@field end_col integer
 ---@field hl_group string
----
----@param time string | osdate time represented in string
----@param mode string current mode
----@return string[], Extmark[] lines and extmarks
-local function build_lines_and_extmarks(time, mode)
-  if type(time) ~= "string" then
-    return {}, {}
-  end
 
+-- Build the lines and extmarks of the clock buffer.
+---@param time string time represented in string
+---@param mode string current mode
+---@return string[], Extmark[] # lines and extmarks
+local function build_lines_and_extmarks(time, mode)
   local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
 
   local lines = {} ---@type string[]
@@ -120,7 +116,7 @@ end
 -- Initialize clock buffer.
 ---@param lines string[] clock buffer content
 ---@param extmarks Extmark[] clock buffer extmarks
----@return integer clock buffer id
+---@return integer # clock buffer id
 local function init_buffer(lines, extmarks)
   local bufid = api.nvim_create_buf(false, true)
   api.nvim_buf_set_lines(bufid, 0, -1, false, lines)
@@ -171,7 +167,7 @@ end
 -- Initialize clock window.
 ---@param bufid integer clock buffer id
 ---@param mode string current mode
----@return integer clock window id
+---@return integer # clock window id
 local function init_window(bufid, mode)
   local float = config.modes[mode].float
   local lines = api.nvim_buf_get_lines(bufid, 0, -1, false)
@@ -209,7 +205,7 @@ end
 ---@param bufid integer clock buffer id
 ---@param winid integer old clock window id
 ---@param mode string current mode
----@return integer new clock window id
+---@return integer # new clock window id
 local function update_window(bufid, winid, mode)
   if not api.nvim_win_is_valid(winid) then
     return -1
@@ -225,6 +221,7 @@ end
 ---@field running boolean
 ---@field timer uv_timer_t
 ---@field mode string
+---@field mode_argv table
 ---@field bufid integer
 ---@field winid integer
 ---
@@ -242,6 +239,7 @@ function Clock:init()
     running = false,
     timer = assert(uv.new_timer()),
     mode = "default",
+    mode_argv = {},
     bufid = -1,
     winid = -1,
   }, self)

@@ -15,8 +15,8 @@ local api = vim.api
 ---@field float ClockFloatConfig
 ---@field hl_group string | fun(c: string, time: string, position: integer, argv: table): string
 ---@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
----@field hl_group_separator: string
----@field time_format fun(): string
+---@field hl_group_separator string
+---@field time_format fun(argv: table): string
 
 ---@class ClockConfig
 ---@field auto_start boolean
@@ -133,7 +133,7 @@ local default_config = {
 }
 
 ---@type ClockConfig
-local config = default
+local config = default_config
 
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
 
@@ -184,11 +184,12 @@ end
 M.set = function(user_config)
   config = vim.tbl_deep_extend("force", default_config, user_config or {})
 
+  ---@diagnostic disable-next-line
   local default_mode = config.modes.default
 
   for k, v in pairs(config.modes) do
     if type(v.hl_group) == "string" then
-      local hl_group = v.hl_group
+      local hl_group = v.hl_group --[[@as string]]
       v.hl_group = function()
         return hl_group
       end
