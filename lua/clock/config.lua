@@ -199,7 +199,7 @@ M.set = function(user_config)
 
   for _, v in pairs(config.modes) do
     if v.float.position ~= "top" and v.float.position ~= "bottom" then
-      api.nvim_err_writeln("config.modes[mode].float.position should be either \"top\" or \"bottom\"")
+      api.nvim_err_writeln("config.modes.float.position should be either \"top\" or \"bottom\"")
       return false
     end
   end
