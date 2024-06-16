@@ -137,35 +137,6 @@ local config = default
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
 
 ---@return boolean
-local function validate_time_formats()
-  for _, v in pairs(config.modes) do
-    local time = os.date(v.time_format())
-    if type(time) ~= "string" then
-      return false
-    end
-
-    for i = 1, time:len(), 1 do
-      local c = time:sub(i, i)
-      local found = false
-
-      for _, v in pairs(char_set) do
-        if c == v then
-          found = true
-          break
-        end
-      end
-
-      if not found then
-        api.nvim_err_writeln("formatted time should only contain digits or colons")
-        return false
-      end
-    end
-  end
-
-  return true
-end
-
----@return boolean
 local function validate_font()
   local font = config.font
   local rows = {}
@@ -232,10 +203,6 @@ M.set = function(user_config)
 
   if config.float.position ~= "top" and config.float.position ~= "bottom" then
     api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
-    return false
-  end
-
-  if not validate_time_formats() then
     return false
   end
 
