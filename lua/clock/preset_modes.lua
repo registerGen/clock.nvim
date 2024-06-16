@@ -28,14 +28,15 @@ function M.gradient(hl_groups, level, map)
     end
   end
 
+  local prefix = "Clock_" .. tostring(hash) .. "_"
 
   for i = 1, (#hl_groups - 1) * level, 1 do
-    api.nvim_set_hl(0, "Clock_" .. tostring(hash) .. "_" .. tostring(i), { fg = colors[i], bg = "bg" })
+    api.nvim_set_hl(0, prefix .. tostring(i), { fg = colors[i], bg = "bg" })
   end
 
   return {
     hl_group_pixel = function(_, position, _, pixel_col)
-      return "Clock_" .. tostring(hash) .. "_" .. tostring(map(position, pixel_col))
+      return prefix .. tostring(map(position, pixel_col))
     end,
     hl_group_separator = "Normal",
   }
