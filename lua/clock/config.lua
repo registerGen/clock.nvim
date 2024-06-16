@@ -26,7 +26,7 @@ local api = vim.api
 ---@field update_time integer
 
 ---@type ClockConfig
-local default = {
+local default_config = {
   auto_start = true,
   font = {
     ["0"] = {
@@ -110,6 +110,7 @@ local default = {
   separator = "  ",
   modes = {
     default = {
+      argc = 0,
       float = {
         border = "single",
         col_offset = 1,
@@ -181,7 +182,9 @@ end
 ---@param user_config? ClockConfig
 ---@return boolean
 M.set = function(user_config)
-  config = vim.tbl_deep_extend("force", default, user_config or {})
+  config = vim.tbl_deep_extend("force", default_config, user_config or {})
+
+  local default_mode = config.modes.default
 
   for k, v in pairs(config.modes) do
     if type(v.hl_group) == "string" then
@@ -193,7 +196,7 @@ M.set = function(user_config)
 
     -- hl_group_pixel should override the default even if it is nil.
     local hl_group_pixel = v.hl_group_pixel
-    config.modes[k] = vim.tbl_deep_extend("force", default, v)
+    config.modes[k] = vim.tbl_deep_extend("force", default_mode, v)
     config.modes[k].hl_group_pixel = hl_group_pixel
   end
 
