@@ -21,8 +21,9 @@ end
 -- Build the lines and extmarks of the clock buffer.
 ---@param time string time represented in string
 ---@param mode string current mode
+---@param mode_argv table current mode arguments
 ---@return string[], Extmark[] # lines and extmarks
-local function build_lines_and_extmarks(time, mode)
+local function build_lines_and_extmarks(time, mode, mode_argv)
   local LEFT, RIGHT, TOP, BOTTOM = 1, 2, 3, 4
 
   local lines = {} ---@type string[]
@@ -41,7 +42,7 @@ local function build_lines_and_extmarks(time, mode)
   for i = 1, len, 1 do
     local c = time:sub(i, i)
     local _, col = get_font_size(c)
-    local hl_group = get_hl_group(c, time, i)
+    local hl_group = get_hl_group(c, time, i, mode_argv)
 
     -- top padding
     for j = 1, pad[TOP], 1 do
@@ -76,7 +77,7 @@ local function build_lines_and_extmarks(time, mode)
             line = j - 1,
             start_col = positions[k] + start_col - 1,
             end_col = positions[k + 1] + start_col - 1,
-            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k),
+            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k, mode_argv),
           }
         end
       end
@@ -220,17 +221,16 @@ end
 ---
 ---@field running boolean
 ---@field timer uv_timer_t
----@field mode string
----@field mode_argv table
+---@field mode { [1]: string, argv: table }
 ---@field bufid integer
 ---@field winid integer
 ---
----@field init fun(self): Clock
----@field get_time fun(self): string
----@field start fun(self): nil
----@field stop fun(self): nil
----@field change_mode fun(string): nil
----@field toggle fun(self): nil
+---@field init fun(self: Clock): Clock
+---@field get_time fun(self: Clock): string
+---@field start fun(self: Clock, restart?: boolean): nil
+---@field stop fun(self: Clock): nil
+---@field change_mode fun(self: Clock, mode: { [1]: string, argv: table }): nil
+---@field toggle fun(self: Clock): nil
 Clock = {}
 
 function Clock:init()
@@ -238,16 +238,15 @@ function Clock:init()
   return setmetatable({
     running = false,
     timer = assert(uv.new_timer()),
-    mode = "default",
-    mode_argv = {},
+    mode = { "default", argv = { [0] = os.date("*t") } },
     bufid = -1,
     winid = -1,
   }, self)
 end
 
 function Clock:get_time()
-  local time_format = config.modes[self.mode].time_format
-  return time_format()
+  local time_format = config.modes[self.mode[1]].time_format
+  return time_format(self.mode.argv)
 end
 
 function Clock:start()
@@ -255,13 +254,13 @@ function Clock:start()
     return
   end
 
-  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode[1], self.mode.argv)
   self.bufid = init_buffer(lines, extmarks)
-  self.winid = init_window(self.bufid, self.mode)
+  self.winid = init_window(self.bufid, self.mode[1])
 
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
-      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode[1], self.mode.argv)
       update_buffer(self.bufid, lines, extmarks)
     end)
   end)
@@ -269,7 +268,7 @@ function Clock:start()
   api.nvim_create_autocmd("WinResized", {
     group = ag,
     callback = function()
-      self.winid = update_window(self.bufid, self.winid, self.mode)
+      self.winid = update_window(self.bufid, self.winid, self.mode[1])
     end,
   })
 
@@ -298,13 +297,13 @@ function Clock:change_mode(mode)
 
   self.mode = mode
 
-  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+  local lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode[1], self.mode.argv)
   update_buffer(self.bufid, lines, extmarks)
-  self.winid = update_window(self.bufid, self.winid, self.mode)
+  self.winid = update_window(self.bufid, self.winid, self.mode[1])
 
   self.timer:start(config.update_time, config.update_time, function()
     vim.schedule(function()
-      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode)
+      lines, extmarks = build_lines_and_extmarks(self:get_time(), self.mode[1], self.mode.argv)
       update_buffer(self.bufid, lines, extmarks)
     end)
   end)
@@ -314,7 +313,7 @@ function Clock:toggle()
   if self.running then
     self:stop()
   else
-    self:start()
+    self:start(true)
   end
 end
 

@@ -22,7 +22,7 @@ local api = vim.api
 ---@field auto_start boolean
 ---@field font table<string, string[]>
 ---@field separator string
----@field modes ClockModeConfig[]
+---@field modes table<string, ClockModeConfig>
 ---@field update_time integer
 
 ---@type ClockConfig
@@ -125,7 +125,7 @@ local default_config = {
       hl_group_pixel = nil,
       hl_group_separator = "NormalText",
       time_format = function()
-        return os.date("%X")
+        return os.date("%X") --[[@as string]]
       end,
     },
   },
@@ -184,8 +184,12 @@ end
 M.set = function(user_config)
   config = vim.tbl_deep_extend("force", default_config, user_config or {})
 
-  ---@diagnostic disable-next-line
   local default_mode = config.modes.default
+
+  if default_mode.argc ~= 0 then
+    api.nvim_err_writeln("default mode should have no arguments")
+    return false
+  end
 
   for k, v in pairs(config.modes) do
     if type(v.hl_group) == "string" then
