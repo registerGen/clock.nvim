@@ -43,6 +43,23 @@ M.setup = function(user_config)
     clock:change_mode({ mode, argv = argv })
   end, {
     nargs = "+",
+    complete = function(arglead, cmdline, _)
+      local args = vim.split(cmdline, " ", { plain = true, trimempty = true })
+
+      if not (#args == 1 or #args == 2 and arglead ~= "") then
+        return {}
+      end
+
+      local result = {}
+
+      for k, _ in pairs(config.get().modes) do
+        if vim.startswith(k, arglead) then
+          result[#result + 1] = k
+        end
+      end
+
+      return result
+    end
   })
 
   if config.get().auto_start then
