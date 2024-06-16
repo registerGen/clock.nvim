@@ -41,4 +41,26 @@ function M.gradient(hl_groups, level, map)
   }
 end
 
+---@param format fun(h: integer, m: integer, s: integer): string
+function M.countup(format)
+  return {
+    time_format = function(argv)
+      local t2 = os.date("*t") --[[@as osdate]]
+      local t1 = argv[0] --[[@as osdate]]
+
+      if t2.sec < t1.sec then
+        t2.sec = t2.sec + 60
+        t2.min = t2.min - 1
+      end
+
+      if t2.min < t1.min then
+        t2.min = t2.min + 60
+        t2.hour = t2.hour - 1
+      end
+
+      return format(t2.hour - t1.hour, t2.min - t1.min, t2.sec - t1.sec)
+    end,
+  }
+end
+
 return M
