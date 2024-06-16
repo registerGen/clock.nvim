@@ -10,28 +10,24 @@ local api = vim.api
 ---@field row_offset integer
 ---@field zindex integer
 
+---@class ClockModeConfig
+---@field argc integer
+---@field float ClockFloatConfig
+---@field hl_group string | fun(time: string, position: integer, argv: table): string
+---@field hl_group_pixel nil | fun(time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
+---@field hl_group_separator string
+---@field time_format fun(argv: table): string
+
 ---@class ClockConfig
 ---@field auto_start boolean
----@field float ClockFloatConfig
 ---@field font table<string, string[]>
----@field hl_group fun(c: string, time: string, position: integer): string
----@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer): string
 ---@field separator string
----@field separator_hl string
----@field time_format string
+---@field modes table<string, ClockModeConfig>
 ---@field update_time integer
 
 ---@type ClockConfig
-local default = {
+local default_config = {
   auto_start = true,
-  float = {
-    border = "single",
-    col_offset = 1,
-    padding = { 1, 1, 0, 0 },
-    position = "bottom",
-    row_offset = 2,
-    zindex = 40,
-  },
   font = {
     ["0"] = {
       "██████",
@@ -111,47 +107,35 @@ local default = {
       "  ",
     },
   },
-  hl_group = function()
-    return "NormalText"
-  end,
-  hl_group_pixel = nil,
   separator = "  ",
-  separator_hl = "NormalText",
-  time_format = "%X",
+  modes = {
+    default = {
+      argc = 0,
+      float = {
+        border = "single",
+        col_offset = 1,
+        padding = { 1, 1, 0, 0 },
+        position = "bottom",
+        row_offset = 2,
+        zindex = 40,
+      },
+      hl_group = function()
+        return "NormalText"
+      end,
+      hl_group_pixel = nil,
+      hl_group_separator = "NormalText",
+      time_format = function()
+        return os.date("%X") --[[@as string]]
+      end,
+    },
+  },
   update_time = 500,
 }
 
 ---@type ClockConfig
-local config = default
+local config = default_config
 
 local char_set = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":" }
-
----@return boolean
-local function validate_time_format()
-  local time = os.date(config.time_format)
-  if type(time) ~= "string" then
-    return false
-  end
-
-  for i = 1, time:len(), 1 do
-    local c = time:sub(i, i)
-    local found = false
-
-    for _, v in pairs(char_set) do
-      if c == v then
-        found = true
-        break
-      end
-    end
-
-    if not found then
-      api.nvim_err_writeln("formatted time should only contain digits or colons")
-      return false
-    end
-  end
-
-  return true
-end
 
 ---@return boolean
 local function validate_font()
@@ -198,16 +182,35 @@ end
 ---@param user_config? ClockConfig
 ---@return boolean
 M.set = function(user_config)
-  user_config = user_config or {}
-  config = vim.tbl_deep_extend("force", default, user_config)
+  config = vim.tbl_deep_extend("force", default_config, user_config or {})
 
-  if config.float.position ~= "top" and config.float.position ~= "bottom" then
-    api.nvim_err_writeln("config.ui.position should be either \"top\" or \"bottom\"")
+  local default_mode = config.modes.default
+
+  if default_mode.argc ~= 0 then
+    api.nvim_err_writeln("default mode should have no arguments")
     return false
   end
 
-  if not validate_time_format() then
-    return false
+  for k, v in pairs(config.modes) do
+    if type(v.hl_group) == "string" then
+      local hl_group = v.hl_group --[[@as string]]
+      v.hl_group = function()
+        return hl_group
+      end
+    end
+
+    local hl_group, hl_group_pixel = v.hl_group, v.hl_group_pixel
+    config.modes[k] = vim.tbl_deep_extend("force", default_mode, v)
+    if hl_group and not hl_group_pixel then
+      config.modes[k].hl_group_pixel = nil
+    end
+  end
+
+  for _, v in pairs(config.modes) do
+    if v.float.position ~= "top" and v.float.position ~= "bottom" then
+      api.nvim_err_writeln("config.mode.float.position should be either \"top\" or \"bottom\"")
+      return false
+    end
   end
 
   if not validate_font() then
