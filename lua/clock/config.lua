@@ -13,8 +13,8 @@ local api = vim.api
 ---@class ClockModeConfig
 ---@field argc integer
 ---@field float ClockFloatConfig
----@field hl_group string | fun(c: string, time: string, position: integer, argv: table): string
----@field hl_group_pixel nil | fun(c: string, time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
+---@field hl_group string | fun(time: string, position: integer, argv: table): string
+---@field hl_group_pixel nil | fun(time: string, position: integer, pixel_row: integer, pixel_col: integer, argv: table): string
 ---@field hl_group_separator string
 ---@field time_format fun(argv: table): string
 

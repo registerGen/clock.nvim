@@ -42,7 +42,7 @@ local function build_lines_and_extmarks(time, mode, mode_argv)
   for i = 1, len, 1 do
     local c = time:sub(i, i)
     local _, col = get_font_size(c)
-    local hl_group = get_hl_group(c, time, i, mode_argv)
+    local hl_group = get_hl_group(time, i, mode_argv)
 
     -- top padding
     for j = 1, pad[TOP], 1 do
@@ -77,7 +77,7 @@ local function build_lines_and_extmarks(time, mode, mode_argv)
             line = j - 1,
             start_col = positions[k] + start_col - 1,
             end_col = positions[k + 1] + start_col - 1,
-            hl_group = get_hl_group_by_pixel(c, time, i, j - pad[TOP], k, mode_argv),
+            hl_group = get_hl_group_by_pixel(time, i, j - pad[TOP], k, mode_argv),
           }
         end
       end

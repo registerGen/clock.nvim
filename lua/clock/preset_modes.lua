@@ -40,7 +40,7 @@ function M.rainbow()
   -- stylua: ignore end
 
   return {
-    hl_group_pixel = function(_, _, position, _, pixel_col)
+    hl_group_pixel = function(_, position, _, pixel_col)
       return "Clock" .. tostring(hl_map[position * 10 + pixel_col])
     end,
     hl_group_separator = "Normal",
