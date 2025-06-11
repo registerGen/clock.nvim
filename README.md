@@ -49,7 +49,7 @@ The default configuration and the documentation are shown below.
   hl_group_pixel = nil,
   separator = "  ", -- separator of two characters
   separator_hl = "NormalText",
-  time_format = "%X",
+  time_format = "%H:%M:%S",
   update_time = 500, -- update the clock text once per <update_time> (in ms)
 }
 ```
