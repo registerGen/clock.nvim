@@ -117,7 +117,7 @@ local default = {
   hl_group_pixel = nil,
   separator = "  ",
   separator_hl = "NormalText",
-  time_format = "%X",
+  time_format = "%H:%M:%S",
   update_time = 500,
 }
 
